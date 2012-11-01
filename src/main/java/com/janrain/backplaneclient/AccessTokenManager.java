@@ -36,7 +36,7 @@ public class AccessTokenManager {
 
         HttpClient httpClient = getHttpClient();
 
-        PostMethod httpMethod = new PostMethod(clientCredentials.getBackplansServerUrl() + "/v2/token");
+        PostMethod httpMethod = new PostMethod(clientCredentials.getBackplaneServerUrl() + "/v2/token");
         httpMethod.addRequestHeader("Authorization", "Basic " +
                 createBasicAuth(clientCredentials.getClientId(), clientCredentials.getClientSecret()));
         if (scope != null) {
