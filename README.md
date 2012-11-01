@@ -8,7 +8,7 @@ Usage
 
 ```
 ClientCredentials creds = new ClientCredentials("https://backplane1.janrainbackplane.com/", "client id", "secret");
-BackplaneClient client = new BackplaneClient(client, true, "bus:foo");
+BackplaneClient client = new BackplaneClient(creds, true, "bus:foo");
 
 MessageWrapper wrapper = null;
 while (true) {
