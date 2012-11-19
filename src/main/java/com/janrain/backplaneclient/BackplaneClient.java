@@ -103,7 +103,7 @@ public class BackplaneClient {
 
     public AccessToken getRegularAccessToken(String bus)
             throws BackplaneClientException, UnauthorizedScopeException {
-        return AccessTokenManager.getRegularAccessToken(clientCredentials.getBackplansServerUrl(), bus);
+        return AccessTokenManager.getRegularAccessToken(clientCredentials.getBackplaneServerUrl(), bus);
     }
 
     /**
@@ -120,7 +120,7 @@ public class BackplaneClient {
 
         HttpClient httpClient = getHttpClient();
 
-        PostMethod httpMethod = new PostMethod(clientCredentials.getBackplansServerUrl() + "/v2/message");
+        PostMethod httpMethod = new PostMethod(clientCredentials.getBackplaneServerUrl() + "/v2/message");
         httpMethod.addRequestHeader("Authorization", "Bearer " + clientCredentials.getAccessToken().getAccess_token());
         httpMethod.addRequestHeader("Content-type", "application/json");
 
@@ -155,7 +155,7 @@ public class BackplaneClient {
     public BackplaneMessage getSingleMessage(String messageId)
             throws BackplaneClientException, InvalidTokenException, ExpiredTokenException {
         try {
-            return getSingleMessage(new URL(clientCredentials.getBackplansServerUrl() + "/v2/message/" + messageId));
+            return getSingleMessage(new URL(clientCredentials.getBackplaneServerUrl() + "/v2/message/" + messageId));
         } catch (MalformedURLException e) {
             throw new BackplaneClientException(e.getMessage());
         }
@@ -217,7 +217,7 @@ public class BackplaneClient {
 
         HttpClient httpClient = getHttpClient();
 
-        String url = clientCredentials.getBackplansServerUrl() + "/v2/messages";
+        String url = clientCredentials.getBackplaneServerUrl() + "/v2/messages";
 
         if (messageWrapper != null) {
             url = messageWrapper.getNextURL();

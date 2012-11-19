@@ -21,11 +21,11 @@ public class ClientCredentials {
         this.accessToken = accessToken;
     }
 
-    public String getBackplansServerUrl() {
+    public String getBackplaneServerUrl() {
         return backplansServerUrl;
     }
 
-    public void setBackplansServerUrl(String backplansServerUrl) {
+    public void setBackplaneServerUrl(String backplansServerUrl) {
         this.backplansServerUrl = backplansServerUrl;
     }
 
