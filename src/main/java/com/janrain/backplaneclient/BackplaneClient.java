@@ -1,27 +1,17 @@
 package com.janrain.backplaneclient;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 
 /**
  * @author Tom Raney
@@ -136,14 +126,19 @@ public class BackplaneClient {
 
         String response = AccessTokenManager.makeCall(httpClient, httpMethod);
 
+        if (response == null)
+        {
+            throw new BackplaneClientException("Couldn't post message.");
+        }
+        
         if (httpMethod.getStatusCode() != 201) {
-            logger.warn("message did not post");
+            logger.warn("Message did not post.");
             if (response.contains("expired token")) {
                 throw new ExpiredTokenException();
             } else if (response.contains("invalid token")) {
                 throw new InvalidTokenException();
             } else {
-                throw new BackplaneClientException();
+                throw new BackplaneClientException(response);
             }
         }
 
@@ -167,7 +162,6 @@ public class BackplaneClient {
      * @return
      * @throws BackplaneClientException
      */
-
     public BackplaneMessage getSingleMessage(URL messageUrl)
             throws BackplaneClientException, ExpiredTokenException, InvalidTokenException {
 
@@ -175,7 +169,6 @@ public class BackplaneClient {
 
         HttpMethod httpMethod = new GetMethod(messageUrl.toString());
         httpMethod.addRequestHeader("Authorization", "Bearer " + clientCredentials.getAccessToken().getAccess_token());
-        BufferedInputStream bis = null;
 
         String response = AccessTokenManager.makeCall(httpClient, httpMethod);
 
@@ -210,11 +203,15 @@ public class BackplaneClient {
      * @param messageWrapper (may be null)
      * @param block (may be null) how long to block in seconds while waiting for messages
      * @return MessageWrapper object that contains an array of messages.
+     * @throws 
      */
-
-    public MessageWrapper getMessages(MessageWrapper messageWrapper, Integer block)
-            throws ExpiredTokenException, InvalidTokenException, BackplaneClientException {
-
+    public MessageWrapper getMessages(
+        MessageWrapper messageWrapper, 
+        Integer block)
+    throws ExpiredTokenException, 
+           InvalidTokenException, 
+           BackplaneClientException
+    {
         HttpClient httpClient = getHttpClient();
 
         String url = clientCredentials.getBackplaneServerUrl() + "/v2/messages";
@@ -225,8 +222,10 @@ public class BackplaneClient {
 
         if (block != null) {
             logger.debug("long polling for up to " + block + " seconds");
-            if (messageWrapper != null) url += "&block=" + block;
-            else url += "?block=" + block;
+            if (url.contains("?"))
+                url += "&block=" + block;
+            else
+                url += "?block=" + block;            
             // make sure the connection doesn't time out during long poll
             httpClient.getHttpConnectionManager().getParams().setSoTimeout((block*1000)+TIMEOUT);
         }
@@ -236,6 +235,11 @@ public class BackplaneClient {
 
         String response = AccessTokenManager.makeCall(httpClient, httpMethod);
 
+        if (response == null)
+        {
+            throw new BackplaneClientException("Couldn't connect to "+url+".");
+        }
+        
         if (httpMethod.getStatusCode() != 200) {
             logger.warn("call failed: " + response);
             if (response.contains("expired token")) {
@@ -266,6 +270,4 @@ public class BackplaneClient {
         httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(TIMEOUT);
         return httpClient;
     }
-
-
 }
